@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Canteen Counter - Token Redemption</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/pages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-utensils"></i>
+            <span>Canteen Token System</span>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="/"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="/security"><i class="fas fa-id-card"></i> Security Desk</a></li>
+            <li><a href="/canteen" class="active"><i class="fas fa-utensils"></i> Canteen Counter</a></li>
+            <li><a href="/employees"><i class="fas fa-users"></i> Employees</a></li>
+            <li><a href="/history"><i class="fas fa-history"></i> History</a></li>
+        </ul>
+        <div class="nav-date">
+            <i class="fas fa-calendar-alt"></i>
+            <span th:text="${todayDate}">01 Jan 2024</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="page-header">
+            <h1><i class="fas fa-utensils"></i> Canteen Counter</h1>
+            <p>Scan and redeem meal tokens</p>
+        </header>
+
+        <div class="canteen-container">
+            <!-- QR Scanner Section -->
+            <section class="scanner-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-qrcode"></i> Scan Token QR Code</h2>
+                </div>
+                
+                <div class="scanner-container">
+                    <div id="qr-reader" class="qr-reader"></div>
+                    <div class="scanner-controls">
+                        <button id="startScanBtn" class="btn btn-primary" onclick="startScanner()">
+                            <i class="fas fa-play"></i> Start Scanner
+                        </button>
+                        <button id="stopScanBtn" class="btn btn-danger" onclick="stopScanner()" style="display: none;">
+                            <i class="fas fa-stop"></i> Stop Scanner
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Manual Entry -->
+                <div class="manual-entry">
+                    <div class="or-divider">
+                        <span>OR ENTER MANUALLY</span>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-ticket-alt"></i>
+                        <input type="text" id="manualTokenNumber" placeholder="Enter Token Number">
+                        <button class="btn btn-success" onclick="redeemManualToken()">
+                            <i class="fas fa-check"></i> Redeem
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Token Details Section -->
+            <section id="tokenDetailsSection" class="token-details-section" style="display: none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-info-circle"></i> Token Details</h2>
+                </div>
+                
+                <div class="token-verify-card">
+                    <div class="token-status-header" id="tokenStatusHeader">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Valid Token</span>
+                    </div>
+                    
+                    <div class="token-details-grid">
+                        <div class="detail-item">
+                            <label>Token Number</label>
+                            <p id="detailTokenNumber">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Employee Name</label>
+                            <p id="detailEmpName">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Employee ID</label>
+                            <p id="detailEmpId">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Department</label>
+                            <p id="detailDept">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Meal Type</label>
+                            <p id="detailMealType">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Issue Time</label>
+                            <p id="detailIssueTime">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Status</label>
+                            <p id="detailStatus">-</p>
+                        </div>
+                    </div>
+                    
+                    <div class="redeem-action" id="redeemAction">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Redeemed By</label>
+                            <input type="text" id="redeemedBy" placeholder="Enter your name" value="Canteen Staff">
+                        </div>
+                        <button class="btn btn-success btn-lg" onclick="confirmRedeem()">
+                            <i class="fas fa-check-circle"></i> Confirm Redemption
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Redemption Success Section -->
+            <section id="redemptionSuccess" class="redemption-success" style="display: none;">
+                <div class="success-card">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2>Token Redeemed Successfully!</h2>
+                    <p>The meal token has been successfully redeemed.</p>
+                    
+                    <div class="redeem-summary">
+                        <p><strong>Token:</strong> <span id="successTokenNumber">-</span></p>
+                        <p><strong>Employee:</strong> <span id="successEmpName">-</span></p>
+                        <p><strong>Redeemed At:</strong> <span id="successTime">-</span></p>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="resetRedemption()">
+                        <i class="fas fa-qrcode"></i> Scan Next Token
+                    </button>
+                </div>
+            </section>
+
+            <!-- Today's Redeemed Tokens -->
+            <section class="today-redeemed">
+                <div class="section-header">
+                    <h2><i class="fas fa-list-check"></i> Today's Redeemed Tokens</h2>
+                    <button class="btn btn-sm btn-refresh" onclick="loadRedeemedTokens()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Token #</th>
+                                <th>Employee</th>
+                                <th>Meal Type</th>
+                                <th>Redeem Time</th>
+                                <th>Redeemed By</th>
+                            </tr>
+                        </thead>
+                        <tbody id="redeemedTokensTable">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="counter-stats">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-pie"></i> Today's Statistics</h2>
+                </div>
+                
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <i class="fas fa-ticket-alt"></i>
+                        <div>
+                            <h4 id="statTotalIssued">0</h4>
+                            <p>Total Issued</p>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h4 id="statTotalRedeemed">0</h4>
+                            <p>Total Redeemed</p>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <h4 id="statPending">0</h4>
+                            <p>Pending</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Canteen Token Management System. All rights reserved.</p>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/canteen-counter.js"></script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Security Desk - Token Issuance</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/pages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-utensils"></i>
+            <span>Canteen Token System</span>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="/"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="/security" class="active"><i class="fas fa-id-card"></i> Security Desk</a></li>
+            <li><a href="/canteen"><i class="fas fa-utensils"></i> Canteen Counter</a></li>
+            <li><a href="/employees"><i class="fas fa-users"></i> Employees</a></li>
+            <li><a href="/history"><i class="fas fa-history"></i> History</a></li>
+        </ul>
+        <div class="nav-date">
+            <i class="fas fa-calendar-alt"></i>
+            <span th:text="${todayDate}">01 Jan 2024</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="page-header">
+            <h1><i class="fas fa-id-card"></i> Security Desk</h1>
+            <p>Check-in employees and issue meal tokens</p>
+        </header>
+
+        <div class="security-container">
+            <!-- Employee Search Section -->
+            <section class="search-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-search"></i> Find Employee</h2>
+                </div>
+                
+                <div class="search-box">
+                    <div class="input-group">
+                        <i class="fas fa-id-badge"></i>
+                        <input type="text" id="employeeIdInput" placeholder="Enter Employee ID (e.g., EMP001)">
+                        <button class="btn btn-primary" onclick="searchEmployee()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    <div class="or-divider">
+                        <span>OR</span>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="employeeNameInput" placeholder="Search by name...">
+                        <button class="btn btn-secondary" onclick="searchByName()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search Results -->
+                <div id="searchResults" class="search-results" style="display: none;">
+                    <h3>Search Results</h3>
+                    <div id="resultsList" class="results-list"></div>
+                </div>
+            </section>
+
+            <!-- Employee Details Section -->
+            <section id="employeeDetails" class="employee-details" style="display: none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-user-check"></i> Employee Details</h2>
+                </div>
+                
+                <div class="employee-card">
+                    <div class="employee-photo">
+                        <img id="empPhoto" src="/images/default-avatar.png" alt="Employee Photo">
+                    </div>
+                    <div class="employee-info">
+                        <h3 id="empName">Employee Name</h3>
+                        <p class="emp-id"><i class="fas fa-id-badge"></i> ID: <span id="empId">EMP001</span></p>
+                        <p class="emp-dept"><i class="fas fa-building"></i> <span id="empDept">Department</span></p>
+                        <p class="emp-designation"><i class="fas fa-briefcase"></i> <span id="empDesignation">Designation</span></p>
+                        <p class="emp-email"><i class="fas fa-envelope"></i> <span id="empEmail">email@company.com</span></p>
+                        <p class="emp-phone"><i class="fas fa-phone"></i> <span id="empPhone">9876543210</span></p>
+                    </div>
+                    <div class="employee-status">
+                        <span id="empStatus" class="status-badge active">Active</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Token Issuance Section -->
+            <section id="tokenSection" class="token-section" style="display: none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-ticket-alt"></i> Issue Token</h2>
+                </div>
+                
+                <div class="token-form">
+                    <div class="form-group">
+                        <label><i class="fas fa-utensils"></i> Select Meal Type</label>
+                        <div class="meal-options">
+                            <label class="meal-option">
+                                <input type="radio" name="mealType" value="BREAKFAST" id="mealBreakfast">
+                                <span class="meal-card-option">
+                                    <i class="fas fa-coffee"></i>
+                                    <span>Breakfast</span>
+                                    <small>7:00 AM - 10:00 AM</small>
+                                </span>
+                            </label>
+                            <label class="meal-option">
+                                <input type="radio" name="mealType" value="LUNCH" id="mealLunch" checked>
+                                <span class="meal-card-option">
+                                    <i class="fas fa-hamburger"></i>
+                                    <span>Lunch</span>
+                                    <small>12:00 PM - 3:00 PM</small>
+                                </span>
+                            </label>
+                            <label class="meal-option">
+                                <input type="radio" name="mealType" value="DINNER" id="mealDinner">
+                                <span class="meal-card-option">
+                                    <i class="fas fa-moon"></i>
+                                    <span>Dinner</span>
+                                    <small>7:00 PM - 10:00 PM</small>
+                                </span>
+                            </label>
+                            <label class="meal-option">
+                                <input type="radio" name="mealType" value="SNACKS" id="mealSnacks">
+                                <span class="meal-card-option">
+                                    <i class="fas fa-cookie-bite"></i>
+                                    <span>Snacks</span>
+                                    <small>4:00 PM - 6:00 PM</small>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-user-shield"></i> Issued By</label>
+                        <input type="text" id="issuedBy" placeholder="Enter your name" value="Security Desk">
+                    </div>
+                    
+                    <button class="btn btn-success btn-lg" onclick="issueToken()">
+                        <i class="fas fa-ticket-alt"></i> Issue Token
+                    </button>
+                </div>
+            </section>
+
+            <!-- Token Display Section -->
+            <section id="tokenDisplay" class="token-display" style="display: none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-check-circle"></i> Token Issued Successfully</h2>
+                </div>
+                
+                <div class="token-card">
+                    <div class="token-header">
+                        <h3>Meal Token</h3>
+                        <span id="tokenMealType" class="meal-badge">LUNCH</span>
+                    </div>
+                    
+                    <div class="token-body">
+                        <div class="token-info">
+                            <p><strong>Token Number:</strong> <span id="tokenNumber">TKN123456</span></p>
+                            <p><strong>Employee:</strong> <span id="tokenEmpName">John Doe</span></p>
+                            <p><strong>Employee ID:</strong> <span id="tokenEmpId">EMP001</span></p>
+                            <p><strong>Department:</strong> <span id="tokenDept">IT</span></p>
+                            <p><strong>Issue Date:</strong> <span id="tokenDate">01 Jan 2024</span></p>
+                            <p><strong>Issue Time:</strong> <span id="tokenTime">12:30 PM</span></p>
+                        </div>
+                        
+                        <div class="qr-section">
+                            <img id="tokenQR" src="" alt="Token QR Code">
+                            <p class="qr-instruction">Scan this QR code at canteen counter</p>
+                        </div>
+                    </div>
+                    
+                    <div class="token-footer">
+                        <button class="btn btn-primary" onclick="printToken()">
+                            <i class="fas fa-print"></i> Print Token
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetForm()">
+                            <i class="fas fa-plus"></i> Issue Another
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Today's Issued Tokens -->
+            <section class="today-tokens">
+                <div class="section-header">
+                    <h2><i class="fas fa-list"></i> Today's Issued Tokens</h2>
+                    <button class="btn btn-sm btn-refresh" onclick="loadTodayTokens()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Token #</th>
+                                <th>Employee</th>
+                                <th>Meal Type</th>
+                                <th>Issue Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="todayTokensTable">
+                            <tr>
+                                <td colspan="6" class="text-center">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Canteen Token Management System. All rights reserved.</p>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/security-desk.js"></script>
+</body>
+</html>
